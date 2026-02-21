@@ -44,12 +44,9 @@ function SuccessContent() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(32);
     doc.setTextColor(30, 30, 30);
-    doc.text(
-      `${story.childName}'s`,
-      pageWidth / 2 + 1,
-      pageHeight / 2 - 19,
-      { align: "center" }
-    );
+    doc.text(`${story.childName}'s`, pageWidth / 2 + 1, pageHeight / 2 - 19, {
+      align: "center",
+    });
     doc.setTextColor(255, 255, 255);
     doc.text(`${story.childName}'s`, pageWidth / 2, pageHeight / 2 - 20, {
       align: "center",
@@ -81,18 +78,15 @@ function SuccessContent() {
       boxHeight,
       3,
       3,
-      "F"
+      "F",
     );
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
-    doc.text(
-      `Age ${story.ageRange}`,
-      pageWidth / 2,
-      pageHeight / 2 + 30,
-      { align: "center" }
-    );
+    doc.text(`Age ${story.ageRange}`, pageWidth / 2, pageHeight / 2 + 30, {
+      align: "center",
+    });
     doc.setFontSize(9);
     doc.text(story.theme, pageWidth / 2, pageHeight / 2 + 36, {
       align: "center",
@@ -112,7 +106,12 @@ function SuccessContent() {
       doc.line(margin, margin - 5, pageWidth - margin, margin - 5);
 
       // Bottom border decoration
-      doc.line(margin, pageHeight - margin + 5, pageWidth - margin, pageHeight - margin + 5);
+      doc.line(
+        margin,
+        pageHeight - margin + 5,
+        pageWidth - margin,
+        pageHeight - margin + 5,
+      );
 
       // Page number with decoration
       doc.setFont("helvetica", "italic");
@@ -133,31 +132,33 @@ function SuccessContent() {
 
     // Parse markdown and render with formatting
     const parseMarkdown = (text: string) => {
-      const segments: Array<{ text: string; bold: boolean; italic: boolean }> = [];
+      const segments: Array<{ text: string; bold: boolean; italic: boolean }> =
+        [];
       let currentPos = 0;
-      
+
       // Simple markdown parser for bold and italic
       const boldRegex = /\*\*(.+?)\*\*/g;
       const italicRegex = /\*(.+?)\*/g;
-      
+
       let match;
-      const processedText = text.replace(boldRegex, '|BOLD_START|$1|BOLD_END|')
-                                .replace(italicRegex, '|ITALIC_START|$1|ITALIC_END|');
-      
-      const parts = processedText.split('|');
+      const processedText = text
+        .replace(boldRegex, "|BOLD_START|$1|BOLD_END|")
+        .replace(italicRegex, "|ITALIC_START|$1|ITALIC_END|");
+
+      const parts = processedText.split("|");
       let isBold = false;
       let isItalic = false;
-      
-      parts.forEach(part => {
-        if (part === 'BOLD_START') isBold = true;
-        else if (part === 'BOLD_END') isBold = false;
-        else if (part === 'ITALIC_START') isItalic = true;
-        else if (part === 'ITALIC_END') isItalic = false;
+
+      parts.forEach((part) => {
+        if (part === "BOLD_START") isBold = true;
+        else if (part === "BOLD_END") isBold = false;
+        else if (part === "ITALIC_START") isItalic = true;
+        else if (part === "ITALIC_END") isItalic = false;
         else if (part) {
           segments.push({ text: part, bold: isBold, italic: isItalic });
         }
       });
-      
+
       return segments;
     };
 
@@ -165,14 +166,14 @@ function SuccessContent() {
     doc.setFontSize(13);
     doc.setTextColor(40, 40, 40);
 
-    const paragraphs = story.tale.split('\n\n');
+    const paragraphs = story.tale.split("\n\n");
     let isFirstParagraph = true;
 
     paragraphs.forEach((paragraph) => {
       if (!paragraph.trim()) return;
 
       const segments = parseMarkdown(paragraph);
-      let currentLine = '';
+      let currentLine = "";
       const lineHeight = 8;
       const paragraphIndent = isFirstParagraph ? 0 : 5;
 
@@ -188,9 +189,9 @@ function SuccessContent() {
           doc.setFont("helvetica", "normal");
         }
 
-        const words = segment.text.split(' ');
+        const words = segment.text.split(" ");
         words.forEach((word, widx) => {
-          const testLine = currentLine + (currentLine ? ' ' : '') + word;
+          const testLine = currentLine + (currentLine ? " " : "") + word;
           const textWidth = doc.getTextWidth(testLine);
 
           if (textWidth > maxWidth - paragraphIndent && currentLine) {
@@ -237,12 +238,7 @@ function SuccessContent() {
     doc.setDrawColor(251, 191, 36);
     doc.setLineWidth(1);
     yPosition += 5;
-    doc.line(
-      pageWidth / 2 - 30,
-      yPosition,
-      pageWidth / 2 + 30,
-      yPosition
-    );
+    doc.line(pageWidth / 2 - 30, yPosition, pageWidth / 2 + 30, yPosition);
 
     // "The End" text
     yPosition += 12;

@@ -17,10 +17,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = `Write a fairy tale for a child named ${childName}, 
+    const prompt = `Write an engaging fairy tale for a child named ${childName}, 
   aged ${ageRange}, with the theme of ${theme}. 
-  The story should be engaging, age-appropriate, 
-  and include a moral lesson.`;
+  
+  Important guidelines:
+  - Make the story gender-neutral and inclusive, suitable for any child
+  - Avoid stereotypical gender roles (e.g., not all heroes need to be princes, not all adventurers need to be princesses)
+  - Focus on universal themes like courage, kindness, friendship, and adventure
+  - The story should be age-appropriate and include a meaningful moral lesson
+  - Use the child's name naturally throughout the story`;
 
     const response = await client.chat.completions.create({
       model: "mistralai/mistral-7b-instruct",
@@ -28,7 +33,7 @@ export async function POST(request: NextRequest) {
         {
           role: "system",
           content:
-            "You are a creative storyteller who writes enchanting fairy tales for children.",
+            "You are a creative storyteller who writes enchanting, gender-neutral fairy tales for all children. Your stories feature diverse characters and avoid gender stereotypes. You create adventures that any child can relate to, regardless of gender.",
         },
         {
           role: "user",
