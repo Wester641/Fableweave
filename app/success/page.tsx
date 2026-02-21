@@ -23,75 +23,238 @@ function SuccessContent() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
+    const margin = 25;
     const maxWidth = pageWidth - 2 * margin;
-    let yPosition = margin;
 
-    // Add decorative header
+    // ========== COVER PAGE ==========
+    // Gradient-like background with rectangles
     doc.setFillColor(147, 51, 234); // Purple
-    doc.rect(0, 0, pageWidth, 15, "F");
+    doc.rect(0, 0, pageWidth, pageHeight / 3, "F");
+    doc.setFillColor(157, 78, 221);
+    doc.rect(0, pageHeight / 3, pageWidth, pageHeight / 3, "F");
+    doc.setFillColor(167, 105, 208);
+    doc.rect(0, (2 * pageHeight) / 3, pageWidth, pageHeight / 3, "F");
 
-    // Title
-    doc.setFontSize(22);
-    doc.setTextColor(147, 51, 234); // Purple
-    yPosition = 30;
-    doc.text(`${story.childName}'s Fairy Tale`, pageWidth / 2, yPosition, {
+    // Decorative border
+    doc.setDrawColor(251, 191, 36); // Amber
+    doc.setLineWidth(3);
+    doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
+
+    // Title with shadow effect
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(32);
+    doc.setTextColor(30, 30, 30);
+    doc.text(
+      `${story.childName}'s`,
+      pageWidth / 2 + 1,
+      pageHeight / 2 - 19,
+      { align: "center" }
+    );
+    doc.setTextColor(255, 255, 255);
+    doc.text(`${story.childName}'s`, pageWidth / 2, pageHeight / 2 - 20, {
       align: "center",
     });
 
-    // Metadata
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    yPosition += 10;
-    doc.text(
-      `Age ${story.ageRange} • ${story.theme}`,
-      pageWidth / 2,
-      yPosition,
-      { align: "center" },
-    );
-
-    // Add decorative line
-    doc.setDrawColor(251, 191, 36); // Amber
-    doc.setLineWidth(0.5);
-    yPosition += 8;
-    doc.line(margin, yPosition, pageWidth - margin, yPosition);
-
-    // Story content
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    yPosition += 15;
-
-    // Remove markdown formatting for PDF
-    const plainText = story.tale
-      .replace(/\*\*/g, "") // Remove bold
-      .replace(/\*/g, "") // Remove italic
-      .replace(/_/g, "") // Remove underscores
-      .replace(/#{1,6}\s?/g, ""); // Remove headers
-
-    const lines = doc.splitTextToSize(plainText, maxWidth);
-
-    lines.forEach((line: string) => {
-      if (yPosition > pageHeight - margin) {
-        doc.addPage();
-        yPosition = margin;
-      }
-      doc.text(line, margin, yPosition);
-      yPosition += 7;
+    doc.setFontSize(36);
+    doc.setTextColor(30, 30, 30);
+    doc.text("Fairy Tale", pageWidth / 2 + 1, pageHeight / 2 + 1, {
+      align: "center",
+    });
+    doc.setTextColor(255, 255, 255);
+    doc.text("Fairy Tale", pageWidth / 2, pageHeight / 2, {
+      align: "center",
     });
 
-    // Add "The End"
-    yPosition += 10;
-    if (yPosition > pageHeight - margin - 20) {
-      doc.addPage();
-      yPosition = margin;
-    }
-    doc.setFontSize(10);
+    // Decorative stars
+    doc.setFontSize(24);
+    doc.text("✨", 30, pageHeight / 2);
+    doc.text("✨", pageWidth - 35, pageHeight / 2);
+
+    // Metadata box
+    doc.setFillColor(255, 255, 255, 0.9);
+    const boxWidth = 120;
+    const boxHeight = 20;
+    doc.roundedRect(
+      pageWidth / 2 - boxWidth / 2,
+      pageHeight / 2 + 20,
+      boxWidth,
+      boxHeight,
+      3,
+      3,
+      "F"
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
+    doc.text(
+      `Age ${story.ageRange}`,
+      pageWidth / 2,
+      pageHeight / 2 + 30,
+      { align: "center" }
+    );
+    doc.setFontSize(9);
+    doc.text(story.theme, pageWidth / 2, pageHeight / 2 + 36, {
+      align: "center",
+      maxWidth: boxWidth - 10,
+    });
+
+    // ========== STORY PAGES ==========
+    doc.addPage();
+    let yPosition = margin + 10;
+    let pageNumber = 1;
+
+    // Helper function to add page decorations
+    const addPageDecorations = () => {
+      // Top border decoration
+      doc.setDrawColor(147, 51, 234);
+      doc.setLineWidth(0.5);
+      doc.line(margin, margin - 5, pageWidth - margin, margin - 5);
+
+      // Bottom border decoration
+      doc.line(margin, pageHeight - margin + 5, pageWidth - margin, pageHeight - margin + 5);
+
+      // Page number with decoration
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`~ ${pageNumber} ~`, pageWidth / 2, pageHeight - margin + 12, {
+        align: "center",
+      });
+      pageNumber++;
+
+      // Corner decorations
+      doc.setFontSize(8);
+      doc.text("✦", margin - 5, margin);
+      doc.text("✦", pageWidth - margin + 5, margin);
+    };
+
+    addPageDecorations();
+
+    // Parse markdown and render with formatting
+    const parseMarkdown = (text: string) => {
+      const segments: Array<{ text: string; bold: boolean; italic: boolean }> = [];
+      let currentPos = 0;
+      
+      // Simple markdown parser for bold and italic
+      const boldRegex = /\*\*(.+?)\*\*/g;
+      const italicRegex = /\*(.+?)\*/g;
+      
+      let match;
+      const processedText = text.replace(boldRegex, '|BOLD_START|$1|BOLD_END|')
+                                .replace(italicRegex, '|ITALIC_START|$1|ITALIC_END|');
+      
+      const parts = processedText.split('|');
+      let isBold = false;
+      let isItalic = false;
+      
+      parts.forEach(part => {
+        if (part === 'BOLD_START') isBold = true;
+        else if (part === 'BOLD_END') isBold = false;
+        else if (part === 'ITALIC_START') isItalic = true;
+        else if (part === 'ITALIC_END') isItalic = false;
+        else if (part) {
+          segments.push({ text: part, bold: isBold, italic: isItalic });
+        }
+      });
+      
+      return segments;
+    };
+
+    // Story content with preserved formatting
+    doc.setFontSize(13);
+    doc.setTextColor(40, 40, 40);
+
+    const paragraphs = story.tale.split('\n\n');
+    let isFirstParagraph = true;
+
+    paragraphs.forEach((paragraph) => {
+      if (!paragraph.trim()) return;
+
+      const segments = parseMarkdown(paragraph);
+      let currentLine = '';
+      const lineHeight = 8;
+      const paragraphIndent = isFirstParagraph ? 0 : 5;
+
+      segments.forEach((segment, idx) => {
+        // Set font style
+        if (segment.bold && segment.italic) {
+          doc.setFont("helvetica", "bolditalic");
+        } else if (segment.bold) {
+          doc.setFont("helvetica", "bold");
+        } else if (segment.italic) {
+          doc.setFont("helvetica", "italic");
+        } else {
+          doc.setFont("helvetica", "normal");
+        }
+
+        const words = segment.text.split(' ');
+        words.forEach((word, widx) => {
+          const testLine = currentLine + (currentLine ? ' ' : '') + word;
+          const textWidth = doc.getTextWidth(testLine);
+
+          if (textWidth > maxWidth - paragraphIndent && currentLine) {
+            // Print current line
+            if (yPosition > pageHeight - margin - 15) {
+              doc.addPage();
+              yPosition = margin + 10;
+              addPageDecorations();
+            }
+            doc.text(currentLine, margin + paragraphIndent, yPosition);
+            yPosition += lineHeight;
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        });
+      });
+
+      // Print remaining line
+      if (currentLine) {
+        if (yPosition > pageHeight - margin - 15) {
+          doc.addPage();
+          yPosition = margin + 10;
+          addPageDecorations();
+        }
+        doc.text(currentLine, margin + paragraphIndent, yPosition);
+        yPosition += lineHeight;
+      }
+
+      // Paragraph spacing
+      yPosition += 6;
+      isFirstParagraph = false;
+    });
+
+    // ========== THE END PAGE ==========
+    yPosition += 15;
+    if (yPosition > pageHeight - margin - 40) {
+      doc.addPage();
+      yPosition = margin + 10;
+      addPageDecorations();
+    }
+
+    // Decorative line before "The End"
+    doc.setDrawColor(251, 191, 36);
+    doc.setLineWidth(1);
+    yPosition += 5;
+    doc.line(
+      pageWidth / 2 - 30,
+      yPosition,
+      pageWidth / 2 + 30,
+      yPosition
+    );
+
+    // "The End" text
+    yPosition += 12;
+    doc.setFont("helvetica", "bolditalic");
+    doc.setFontSize(18);
+    doc.setTextColor(147, 51, 234);
     doc.text("The End", pageWidth / 2, yPosition, { align: "center" });
 
-    // Add footer
-    doc.setFillColor(147, 51, 234);
-    doc.rect(0, pageHeight - 10, pageWidth, 10, "F");
+    // Stars decoration
+    doc.setFontSize(14);
+    doc.text("✨", pageWidth / 2 - 25, yPosition);
+    doc.text("✨", pageWidth / 2 + 25, yPosition);
 
     // Save the PDF
     doc.save(`${story.childName}-fairytale.pdf`);
