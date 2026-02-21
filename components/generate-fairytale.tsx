@@ -36,7 +36,9 @@ export async function generateFairytale(
       max_tokens: 300,
     });
 
-    return console.log(response.choices[0].message.content);
+    const fairytale = response.choices[0].message.content;
+
+    return fairytale;
   } catch (error) {
     console.error("Error generating fairy tale:", error);
     throw new Error("Failed to generate fairy tale");
