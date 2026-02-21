@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           content: prompt,
         },
       ],
-      max_tokens: 300,
+      max_tokens: 500,
     });
 
     const fairytale = response.choices[0].message.content;
