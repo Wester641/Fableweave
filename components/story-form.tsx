@@ -52,6 +52,29 @@ export function StoryForm() {
     }
   }
 
+  async function handleUnlock() {
+    const storyId = Math.random().toString(36).slice(2);
+
+    localStorage.setItem(
+      `story_${storyId}`,
+      JSON.stringify({
+        tale: fairytale,
+        childName,
+        ageRange,
+        theme,
+      }),
+    );
+
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storyId }),
+    });
+
+    const { url } = await res.json();
+    window.location.href = url;
+  }
+
   return (
     <section id="create" className="px-4 py-16 md:px-6 md:py-24">
       <div className="mx-auto max-w-2xl text-center">
@@ -234,9 +257,7 @@ export function StoryForm() {
                     <Button
                       size="lg"
                       className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 shadow-xl"
-                      onClick={() => {
-                        window.location.href = "/payment";
-                      }}
+                      onClick={handleUnlock}
                     >
                       <Sparkles className="h-4 w-4" />
                       Unlock Full Story
