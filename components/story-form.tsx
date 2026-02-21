@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { track } from "@vercel/analytics";
 import { Wand2, Loader2, BookOpen, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -188,15 +189,45 @@ export function StoryForm() {
               {/* Story Text */}
               <div className="relative">
                 {/* First Half - Normal (with Decorative Drop Cap) */}
-                <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-foreground/90 first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:text-4xl first-letter:font-bold first-letter:text-purple-600 dark:text-foreground/95 dark:first-letter:text-purple-400">
-                  {fairytale.slice(0, Math.floor(fairytale.length / 6))}
-                </p>
+                <div className="prose prose-purple max-w-none font-serif text-base leading-relaxed text-foreground/90 first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:text-4xl first-letter:font-bold first-letter:text-purple-600 dark:text-foreground/95 dark:first-letter:text-purple-400">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => (
+                        <p className="whitespace-pre-wrap">{children}</p>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-bold text-purple-700 dark:text-purple-300">
+                          {children}
+                        </strong>
+                      ),
+                      em: ({ children }) => (
+                        <em className="italic">{children}</em>
+                      ),
+                    }}
+                  >
+                    {fairytale.slice(0, Math.floor(fairytale.length / 6))}
+                  </ReactMarkdown>
+                </div>
 
                 {/* Second Half - Blurred with Unlock Button */}
                 <div className="relative">
-                  <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-foreground/90 blur-[2px] select-none">
-                    {fairytale.slice(Math.floor(fairytale.length / 6))}
-                  </p>
+                  <div className="prose prose-purple max-w-none font-serif text-base leading-relaxed text-foreground/90 blur-[2px] select-none">
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => (
+                          <p className="whitespace-pre-wrap">{children}</p>
+                        ),
+                        strong: ({ children }) => (
+                          <strong className="font-bold">{children}</strong>
+                        ),
+                        em: ({ children }) => (
+                          <em className="italic">{children}</em>
+                        ),
+                      }}
+                    >
+                      {fairytale.slice(Math.floor(fairytale.length / 6))}
+                    </ReactMarkdown>
+                  </div>
 
                   {/* Unlock Button Overlay */}
                   <div className="absolute inset-0 flex items-start justify-center pt-4">
