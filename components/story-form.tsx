@@ -1,41 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { track } from "@vercel/analytics"
-import { Wand2, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useEffect, useState } from "react";
+import { track } from "@vercel/analytics";
+import { Wand2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { generateFairytale } from "./generate-fairytale";
 
 export function StoryForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [childName, setChildName] = useState("")
-  const [ageRange, setAgeRange] = useState("")
-  const [theme, setTheme] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [childName, setChildName] = useState("");
+  const [ageRange, setAgeRange] = useState("");
+  const [theme, setTheme] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
     track("story_form_submitted", {
       ageRange,
       themeLength: theme.length,
-    })
+    });
     // Simulate request
-    setTimeout(() => setIsSubmitting(false), 2000)
+    setTimeout(() => setIsSubmitting(false), 2000);
   }
 
   return (
-    <section
-      id="create"
-      className="px-4 py-16 md:px-6 md:py-24"
-    >
+    <section id="create" className="px-4 py-16 md:px-6 md:py-24">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance font-serif text-3xl font-bold text-foreground md:text-4xl">
           Create Your Story
@@ -101,6 +99,7 @@ export function StoryForm() {
           size="lg"
           className="mt-8 w-full"
           disabled={isSubmitting}
+          onClick={() => generateFairytale(childName, ageRange, theme)}
         >
           {isSubmitting ? (
             <>
@@ -116,5 +115,5 @@ export function StoryForm() {
         </Button>
       </form>
     </section>
-  )
+  );
 }
